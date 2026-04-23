@@ -1,0 +1,91 @@
+.input-section {
+  padding: 16px 24px;
+  border-bottom: 1px solid #f3f4f6;
+  background: linear-gradient(180deg, #ffffff 0%, #f9fafb 100%);
+}
+
+.input-wrapper {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.todo-input {
+  flex: 1;
+  padding: 12px 14px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 13px;
+  font-family: 'JetBrains Mono', 'SF Mono', Consolas, monospace;
+  background: #ffffff;
+  color: #1f2937;
+  transition: all 0.3s ease;
+}
+
+.todo-input::placeholder {
+  color: #9ca3af;
+}
+
+.todo-input:focus {
+  outline: none;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.priority-select {
+  padding: 12px 28px 12px 12px;
+  padding-right: 28px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 13px;
+  font-family: 'JetBrains Mono', 'SF Mono', Consolas, monospace;
+  cursor: pointer;
+  transition: all 0.3s;
+  background: #ffffff;
+  color: #6b7280;
+  min-width: 70px;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 12px;
+}
+
+.priority-select:focus {
+  outline: none;
+  border-color: #6366f1;
+}
+
+.priority-select option {
+  background: #ffffff;
+  color: #1f2937;
+}
+
+.add-btn {
+  padding: 12px 18px !important;
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  color: white;
+  border: none !important;
+  border-radius: 8px !important;
+  font-size: 13px !important;
+  font-weight: 600;
+  font-family: 'JetBrains Mono', 'SF Mono', Consolas, monospace !important;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap !important;
+}
+
+.add-btn:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 8px 24px rgba(99, 102, 241, 0.3),
+    0 0 0 1px rgba(99, 102, 241, 0.2);
+}
+
+.add-btn:active {
+  transform: translateY(0);
+}

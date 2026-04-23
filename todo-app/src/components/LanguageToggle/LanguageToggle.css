@@ -1,0 +1,31 @@
+.language-toggle {
+  position: absolute;
+  top: 16px;
+  right: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border: 1px solid #2a2a3a;
+  background: rgba(10, 10, 15, 0.8);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.language-toggle:hover {
+  border-color: #6366f1;
+  background: rgba(99, 102, 241, 0.1);
+  box-shadow: 0 0 15px rgba(99, 102, 241, 0.2);
+}
+
+.lang-icon {
+  font-size: 16px;
+}
+
+.lang-label {
+  font-size: 12px;
+  font-family: 'JetBrains Mono', 'SF Mono', Consolas, monospace;
+  color: #a0a0a0;
+  font-weight: 500;
+}

@@ -1,0 +1,380 @@
+.calendar {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  height: 100%;
+}
+
+.calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid #e5e7eb;
+  background: #ffffff;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.calendar-header-left {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.calendar-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1f2937;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.calendar-nav-wrapper {
+  display: flex;
+  gap: 8px;
+}
+
+.calendar-nav-spacer {
+  display: flex;
+  gap: 8px;
+  visibility: hidden;
+}
+
+.calendar-nav:hover {
+  background: #f9fafb;
+  border-color: #6366f1;
+  color: #6366f1;
+}
+
+.calendar-nav {
+  padding: 6px 12px;
+  background: transparent;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  font-size: 13px;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: 'JetBrains Mono', 'SF Mono', Consolas, monospace;
+}
+
+.calendar-move-all-btn {
+  padding: 6px 12px;
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: 'JetBrains Mono', 'SF Mono', Consolas, monospace;
+  white-space: nowrap;
+}
+
+.calendar-move-all-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+}
+
+.calendar-grid {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-height: 0;
+}
+
+.calendar-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  border-bottom: 1px solid #e5e7eb;
+  background: #f9fafb;
+}
+
+.calendar-weekday {
+  text-align: center;
+  font-size: 13px;
+  font-weight: 500;
+  color: #6b7280;
+  font-family: 'JetBrains Mono', 'SF Mono', Consolas, monospace;
+  padding: 12px 0;
+  border-right: 1px solid #f3f4f6;
+}
+
+.calendar-weekday:last-child {
+  border-right: none;
+}
+
+.calendar-weekday:first-child {
+  color: #ef4444;
+}
+
+.calendar-weekday:last-child {
+  color: #ef4444;
+}
+
+.calendar-weeks {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-height: 0;
+}
+
+.calendar-week {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  border-bottom: 1px solid #e5e7eb;
+  flex: 1;
+  min-height: 0;
+  table-layout: fixed;
+  width: 100%;
+}
+
+.calendar-week:last-child {
+  border-bottom: none;
+}
+
+.calendar-day {
+  border-right: 1px solid #f3f4f6;
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  transition: background 0.2s ease;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  font-size: 12px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.calendar-day:last-child {
+  border-right: none;
+}
+
+.calendar-day:hover {
+  background: #f9fafb;
+}
+
+.calendar-day.other-month {
+  background: #fafafa;
+}
+
+.calendar-day.other-month .calendar-day-number {
+  color: #d1d5db;
+}
+
+.calendar-day.today {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, rgba(139, 92, 246, 0.08) 100%);
+}
+
+.calendar-day:first-child,
+.calendar-day:nth-child(7n+1) {
+  background: #fef2f2;
+}
+
+.calendar-day.today:first-child,
+.calendar-day.today:nth-child(7n+1) {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, rgba(139, 92, 246, 0.08) 100%);
+}
+
+.calendar-day-number {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1f2937;
+  font-family: 'JetBrains Mono', 'SF Mono', Consolas, monospace;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.calendar-day-number.today {
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  color: white;
+}
+
+.calendar-day-todos {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  overflow-y: auto;
+  min-height: 0;
+  scroll-behavior: smooth;
+}
+
+.calendar-day-todos::-webkit-scrollbar {
+  width: 4px;
+}
+
+.calendar-day-todos::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.calendar-day-todos::-webkit-scrollbar-thumb {
+  background: #e5e7eb;
+  border-radius: 2px;
+}
+
+.calendar-day-todos:hover::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+}
+
+.no-tasks {
+  font-size: 10px;
+  color: #d1d5db;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-style: italic;
+}
+
+.calendar-todo-item {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+  transition: background 0.2s ease;
+  font-size: 10px !important;
+  color: #374151;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
+  flex-shrink: 0;
+  min-height: 8px;
+  height: 14px;
+}
+
+.calendar-todo-item.search-match {
+  background: rgba(16, 185, 129, 0.2);
+  border-radius: 2px;
+}
+
+.calendar-todo-item:hover {
+  background: #f3f4f6;
+}
+
+.calendar-todo-item.completed {
+  opacity: 0.5;
+}
+
+.calendar-todo-item.completed .todo-text {
+  text-decoration: line-through;
+}
+
+.todo-priority-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.todo-priority-dot.high {
+  background-color: #ef4444;
+}
+
+.todo-priority-dot.medium {
+  background-color: #f59e0b;
+}
+
+.todo-priority-dot.low {
+  background-color: #10b981;
+}
+
+.calendar-todo-item .todo-text {
+  flex: 1;
+  min-width: 0;
+  font-size: 11px !important;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+}
+
+.calendar-todo-tooltip {
+  position: fixed;
+  background: rgba(31, 41, 55, 0.98);
+  color: #f9fafb;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  pointer-events: auto;
+  z-index: 10000;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  transform: translate(-50%, 0);
+  white-space: nowrap;
+  max-width: 300px;
+  line-height: 1.4;
+}
+
+.calendar-todo-tooltip .tooltip-text {
+  font-weight: 500;
+  margin-bottom: 6px;
+  color: #ffffff;
+}
+
+.calendar-todo-tooltip .tooltip-meta {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  font-size: 11px;
+}
+
+.calendar-todo-tooltip .tooltip-priority {
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 10px;
+}
+
+.calendar-todo-tooltip .tooltip-priority.high {
+  background: rgba(239, 68, 68, 0.3);
+  color: #fca5a5;
+}
+
+.calendar-todo-tooltip .tooltip-priority.medium {
+  background: rgba(245, 158, 11, 0.3);
+  color: #fcd34d;
+}
+
+.calendar-todo-tooltip .tooltip-priority.low {
+  background: rgba(16, 185, 129, 0.3);
+  color: #6ee7b7;
+}
+
+.calendar-todo-tooltip .tooltip-date {
+  color: #9ca3af;
+}
+
+.calendar-todo-tooltip .tooltip-move-btn {
+  margin-top: 8px;
+  padding: 6px 10px;
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  font-family: 'JetBrains Mono', 'SF Mono', Consolas, monospace;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%;
+}
+
+.calendar-todo-tooltip .tooltip-move-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+}
+
+.calendar-todo-tooltip .tooltip-move-btn:active {
+  transform: translateY(0);
+}

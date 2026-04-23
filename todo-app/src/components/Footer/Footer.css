@@ -1,0 +1,36 @@
+.footer {
+  padding: 12px 24px;
+  border-top: 1px solid #f3f4f6;
+  background: linear-gradient(180deg, #f9fafb 0%, #f3f4f6 100%);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.clear-completed {
+  padding: 8px 16px;
+  border: 1px solid #e5e7eb;
+  background: transparent;
+  color: #6b7280;
+  font-size: 11px;
+  font-family: 'JetBrains Mono', 'SF Mono', Consolas, monospace;
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.clear-completed:hover {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.3);
+  color: #dc2626;
+  box-shadow: 0 0 15px rgba(239, 68, 68, 0.1);
+}
+
+.footer-info {
+  font-size: 12px;
+  font-family: 'JetBrains Mono', 'SF Mono', Consolas, monospace;
+  color: #9ca3af;
+}

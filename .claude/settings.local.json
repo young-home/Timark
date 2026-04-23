@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run:*)",
+      "Bash(netstat -ano)",
+      "Bash(node clean-port.mjs)",
+      "Bash(git init *)",
+      "Bash(git add *)"
+    ]
+  }
+}
