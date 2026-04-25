@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { Todo, PriorityType } from '../types/todo';
-import { todosApi, mapDBTodoToTodo } from '../api';
+import { todosApi, mapDBTodoToTodo, getLocalDateISO } from '../api';
 
 export function useTodos() {
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -108,7 +108,7 @@ export function useTodos() {
   const moveTodoToToday = async (id: number) => {
     try {
       setError(null);
-      const now = new Date().toISOString();
+      const now = getLocalDateISO();
       const updated = await todosApi.update(id, { completed: false, createdAt: now });
       setTodos(prev =>
         prev.map(t =>
@@ -127,7 +127,7 @@ export function useTodos() {
     if (activeTodos.length === 0) return;
     try {
       setError(null);
-      const now = new Date().toISOString();
+      const now = getLocalDateISO();
       await Promise.all(
         activeTodos.map(t => todosApi.update(t.id, { createdAt: now }))
       );

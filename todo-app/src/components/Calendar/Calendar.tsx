@@ -102,17 +102,30 @@ export function Calendar({ todos, onTodoClick, onMoveToToday, onMoveAllActiveToT
   };
 
   const getTodosForDate = (date: Date): Todo[] => {
-    // 使用本地时间比较，避免时区问题
-    const year = date.getFullYear();
-    const month = date.getMonth();
-    const day = date.getDate();
+    // 获取目标日期的本地时间组件
+    const targetYear = date.getFullYear();
+    const targetMonth = date.getMonth();
+    const targetDay = date.getDate();
 
     const todosForDate = todos.filter(todo => {
+      // 将 ISO 字符串转换为 Date 对象
       const todoDate = new Date(todo.createdAt);
+
+      // 关键：使用 UTC 方法获取年月日，避免时区转换
+      // 因为 createdAt 存储的是 UTC 时间，我们需要按 UTC 日期分组
+      const utcYear = todoDate.getUTCFullYear();
+      const utcMonth = todoDate.getUTCMonth();
+      const utcDay = todoDate.getUTCDate();
+
+      // 但我们需要按本地日期分组，所以将 UTC 时间转换成本地时间后再比较
+      const localYear = todoDate.getFullYear();
+      const localMonth = todoDate.getMonth();
+      const localDay = todoDate.getDate();
+
       return (
-        todoDate.getFullYear() === year &&
-        todoDate.getMonth() === month &&
-        todoDate.getDate() === day
+        localYear === targetYear &&
+        localMonth === targetMonth &&
+        localDay === targetDay
       );
     });
 

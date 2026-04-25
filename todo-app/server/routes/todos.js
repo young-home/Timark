@@ -63,12 +63,30 @@ router.post('/', async (req, res) => {
       return res.status(400).json({ error: '任务内容不能为空' });
     }
 
-    // 如果有传入 createdAt，使用该时间；否则使用当前时间
+    // 处理 createdAt：如果没有传入，使用当前本地时间
+    // 如果传入了，使用该时间（前端已处理为本地时间）
+    let createdTime;
+    if (createdAt) {
+      // 前端传来的是本地时间格式（如 2026-04-26T14:30:00）
+      // 直接存储，不转换
+      createdTime = createdAt.replace('T', ' ');
+    } else {
+      // 使用当前本地时间存储
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const day = String(now.getDate()).padStart(2, '0');
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      const seconds = String(now.getSeconds()).padStart(2, '0');
+      createdTime = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+    }
+
     const result = await pool.query(
       `INSERT INTO todos (user_id, text, completed, priority, created_at)
        VALUES ($1, $2, $3, $4, $5)
        RETURNING *`,
-      [userId, text.trim(), completed || false, priority || 'medium', createdAt || new Date().toISOString()]
+      [userId, text.trim(), completed || false, priority || 'medium', createdTime]
     );
 
     res.status(201).json({
@@ -123,8 +141,9 @@ router.put('/:id', async (req, res) => {
 
     // 允许更新 created_at（用于"移到今天"功能）
     if (createdAt !== undefined) {
+      // 前端传来的是本地时间格式，直接存储（去掉 T 替换为空格）
       updates.push(`created_at = $${paramIndex}`);
-      values.push(createdAt);
+      values.push(createdAt.replace('T', ' '));
       paramIndex++;
     }
 

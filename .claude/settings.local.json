@@ -27,7 +27,8 @@
       "Bash(findstr :3001)",
       "Bash(taskkill *)",
       "Bash(findstr LISTENING)",
-      "PowerShell(Stop-Process *)"
+      "PowerShell(Stop-Process *)",
+      "Bash(node *)"
     ]
   }
 }

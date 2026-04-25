@@ -28,6 +28,18 @@ export function mapDBTodoToTodo(dbTodo: Record<string, unknown>): Todo {
   };
 }
 
+// 获取本地日期的 ISO 字符串（用于创建任务时按本地日期分组）
+export function getLocalDateISO(): string {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  const hours = String(now.getHours()).padStart(2, '0');
+  const minutes = String(now.getMinutes()).padStart(2, '0');
+  const seconds = String(now.getSeconds()).padStart(2, '0');
+  return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
+}
+
 // 通用请求方法
 async function request<T>(
   endpoint: string,
