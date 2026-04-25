@@ -86,7 +86,7 @@ router.put('/:id', async (req, res) => {
   try {
     const todoId = parseInt(req.params.id);
     const userId = req.userId;
-    const { text, completed, priority } = req.body;
+    const { text, completed, priority, createdAt } = req.body;
 
     // 先检查权限（只能操作自己的待办）
     const checkResult = await pool.query(
@@ -118,6 +118,13 @@ router.put('/:id', async (req, res) => {
     if (priority !== undefined && ['high', 'medium', 'low'].includes(priority)) {
       updates.push(`priority = $${paramIndex}`);
       values.push(priority);
+      paramIndex++;
+    }
+
+    // 允许更新 created_at（用于"移到今天"功能）
+    if (createdAt !== undefined) {
+      updates.push(`created_at = $${paramIndex}`);
+      values.push(createdAt);
       paramIndex++;
     }
 

@@ -108,11 +108,12 @@ export function useTodos() {
   const moveTodoToToday = async (id: number) => {
     try {
       setError(null);
-      const updated = await todosApi.update(id, { completed: false });
+      const now = new Date().toISOString();
+      const updated = await todosApi.update(id, { completed: false, createdAt: now });
       setTodos(prev =>
         prev.map(t =>
           t.id === id
-            ? { ...t, completed: false, createdAt: (updated as Record<string, unknown>).created_at as string || new Date().toISOString() }
+            ? { ...t, completed: false, createdAt: now }
             : t
         )
       );
@@ -126,13 +127,14 @@ export function useTodos() {
     if (activeTodos.length === 0) return;
     try {
       setError(null);
+      const now = new Date().toISOString();
       await Promise.all(
-        activeTodos.map(t => todosApi.update(t.id, { completed: false }))
+        activeTodos.map(t => todosApi.update(t.id, { createdAt: now }))
       );
       setTodos(prev =>
         prev.map(t =>
           !t.completed
-            ? { ...t, createdAt: new Date().toISOString() }
+            ? { ...t, createdAt: now }
             : t
         )
       );
