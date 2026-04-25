@@ -1,6 +1,7 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import type { FilterType } from './types/todo';
 import { useTodos } from './hooks/useTodos';
+import { useAuth } from './contexts/AuthContext';
 import { Header } from './components/Header/Header';
 import { InputSection } from './components/InputSection/InputSection';
 import { Filters } from './components/Filters/Filters';
@@ -10,7 +11,8 @@ import { Calendar } from './components/Calendar/Calendar';
 import './App.css';
 
 function App() {
-  const { todos, addTodo, toggleTodo, updateTodo, reorderTodos, deleteTodo, clearCompleted, moveTodoToToday, moveAllActiveToToday } = useTodos();
+  const { user, logout } = useAuth();
+  const { todos, loading, error, addTodo, toggleTodo, updateTodo, reorderTodos, deleteTodo, clearCompleted, moveTodoToToday, moveAllActiveToToday } = useTodos();
   const [currentFilter, setCurrentFilter] = useState<FilterType>('active');
   const [highlightedTodoId, setHighlightedTodoId] = useState<number | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -35,7 +37,6 @@ function App() {
   };
 
   useEffect(() => {
-    // 同步两个面板的高度
     const syncHeight = () => {
       const todoContainer = todoPanelRef.current?.querySelector('.container');
       if (calendarPanelRef.current && todoContainer) {
@@ -44,10 +45,8 @@ function App() {
       }
     };
 
-    // 初始同步
     setTimeout(syncHeight, 0);
 
-    // 使用 ResizeObserver 监听待办面板高度变化
     const observer = new ResizeObserver(syncHeight);
     if (todoPanelRef.current) {
       observer.observe(todoPanelRef.current);
@@ -55,6 +54,15 @@ function App() {
 
     return () => observer.disconnect();
   }, [todos]);
+
+  if (loading) {
+    return (
+      <div className="app-loading">
+        <div className="loading-spinner" />
+        <p>加载中...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="app-container">
@@ -65,7 +73,12 @@ function App() {
             active={activeCount}
             completed={completedCount}
             onSearchChange={setSearchQuery}
+            userDisplayName={user?.displayName}
+            onLogout={logout}
           />
+          {error && (
+            <div className="api-error-banner">{error}</div>
+          )}
           <InputSection onAdd={addTodo} />
           <Filters currentFilter={currentFilter} onFilterChange={setCurrentFilter} />
           <TodoList

@@ -1,11 +1,31 @@
+import type { Todo } from '../types/todo';
+
 // 根据环境切换 API 地址
 const API_BASE_URL = import.meta.env.DEV
-  ? 'http://localhost:3001/api/v1'  // 本地开发
-  : 'https://your-api-gateway.aliyuncs.com/api/v1';  // 生产环境
+  ? 'http://localhost:3001/api/v1'
+  : 'https://your-api-gateway.aliyuncs.com/api/v1';
 
 // 获取存储的 token
 function getToken(): string | null {
   return localStorage.getItem('auth_token');
+}
+
+// 清除 token（用于 401 响应）
+function clearAuth(): void {
+  localStorage.removeItem('auth_token');
+  window.dispatchEvent(new CustomEvent('auth:logout'));
+}
+
+// DB 待办 → 前端 Todo 映射
+export function mapDBTodoToTodo(dbTodo: Record<string, unknown>): Todo {
+  return {
+    id: Number(dbTodo.id),
+    text: dbTodo.text as string,
+    completed: dbTodo.completed as boolean,
+    createdAt: (dbTodo.created_at as string) || new Date().toISOString(),
+    priority: (dbTodo.priority as 'high' | 'medium' | 'low') || 'medium',
+    order: Date.now() + Math.random(),
+  };
 }
 
 // 通用请求方法
@@ -26,6 +46,13 @@ async function request<T>(
   };
 
   const response = await fetch(url, config);
+
+  // 401 → token 过期或无效，自动登出
+  if (response.status === 401) {
+    clearAuth();
+    throw new Error('认证已过期，请重新登录');
+  }
+
   const data = await response.json();
 
   if (!response.ok) {

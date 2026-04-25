@@ -8,9 +8,11 @@ interface HeaderProps {
   completed: number;
   onSearchExpand?: (isExpanded: boolean) => void;
   onSearchChange?: (query: string) => void;
+  userDisplayName?: string;
+  onLogout?: () => void;
 }
 
-export function Header({ total, active, completed, onSearchExpand, onSearchChange }: HeaderProps) {
+export function Header({ total, active, completed, onSearchExpand, onSearchChange, userDisplayName, onLogout }: HeaderProps) {
   const { language } = useLanguage();
   const [isSearchExpanded, setIsSearchExpanded] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -22,12 +24,14 @@ export function Header({ total, active, completed, onSearchExpand, onSearchChang
       subtitle: '管理你的日常任务',
       stats: { total: '总任务', active: '进行中', done: '已完成' },
       searchPlaceholder: '搜索任务...',
+      logout: '退出登录',
     },
     en: {
       title: 'TASKS',
       subtitle: 'Manage your daily tasks',
       stats: { total: 'Total', active: 'Active', done: 'Done' },
       searchPlaceholder: 'Search tasks...',
+      logout: 'Logout',
     },
   };
 
@@ -57,24 +61,20 @@ export function Header({ total, active, completed, onSearchExpand, onSearchChang
   };
 
   const handleSearchBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-    // 使用 e.target.value 获取最新的输入值
     if (!e.target.value) {
       setIsSearchExpanded(false);
       onSearchExpand?.(false);
     }
   };
 
-  // 快捷键处理
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // 如果焦点在输入框中，按 Esc 折叠搜索框
       if (isSearchExpanded && e.key === 'Escape') {
         setIsSearchExpanded(false);
         onSearchExpand?.(false);
         return;
       }
 
-      // 如果焦点不在输入框，按 S 展开搜索框
       const target = e.target as HTMLElement;
       const isInputFocused = target.tagName === 'INPUT' || target.tagName === 'TEXTAREA';
 
@@ -89,7 +89,6 @@ export function Header({ total, active, completed, onSearchExpand, onSearchChang
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [isSearchExpanded, onSearchExpand]);
 
-  // 搜索框展开时自动聚焦
   useEffect(() => {
     if (isSearchExpanded && inputRef.current) {
       inputRef.current.focus();
@@ -98,15 +97,24 @@ export function Header({ total, active, completed, onSearchExpand, onSearchChang
 
   return (
     <div className="header">
-      {/* 占位元素，保持高度一致 */}
       <div className={`header-title-wrapper ${isSearchExpanded ? 'hidden' : ''}`}>
         <h1>{t[language].title}</h1>
         <p>{t[language].subtitle}</p>
       </div>
       {!isSearchExpanded && (
-        <button className="search-toggle-btn" onClick={handleToggleSearch}>
-          <span className="search-icon">🔍</span>
-        </button>
+        <div className="header-actions">
+          {userDisplayName && (
+            <span className="user-display-name">{userDisplayName}</span>
+          )}
+          <button className="search-toggle-btn" onClick={handleToggleSearch}>
+            <span className="search-icon">🔍</span>
+          </button>
+          {onLogout && (
+            <button className="logout-btn" onClick={onLogout} title={t[language].logout}>
+              {language === 'zh' ? '退出' : 'Logout'}
+            </button>
+          )}
+        </div>
       )}
       {isSearchExpanded && (
         <div className="header-search-wrapper">

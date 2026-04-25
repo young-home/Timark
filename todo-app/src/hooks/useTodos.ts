@@ -1,38 +1,40 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import type { Todo, PriorityType } from '../types/todo';
+import { todosApi, mapDBTodoToTodo } from '../api';
 
 export function useTodos() {
-  const [todos, setTodos] = useState<Todo[]>(() => {
-    const stored = localStorage.getItem('todos');
-    if (stored) {
-      const parsed = JSON.parse(stored);
-      // 按创建时间倒序排列（越晚创建的越在前）
-      return parsed.sort((a: Todo, b: Todo) => {
-        // 先按 order 字段排序（拖拽后的顺序）
-        if (a.order !== b.order) {
-          return b.order - a.order;
-        }
-        // order 相同时，按创建时间倒序
-        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-      });
+  const [todos, setTodos] = useState<Todo[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // 加载待办列表
+  const loadTodos = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const dbTodos = await todosApi.list();
+      const mapped: Todo[] = (Array.isArray(dbTodos) ? dbTodos : []).map(mapDBTodoToTodo);
+      setTodos(mapped);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : '加载失败');
+    } finally {
+      setLoading(false);
     }
-    return [];
-  });
+  }, []);
 
   useEffect(() => {
-    localStorage.setItem('todos', JSON.stringify(todos));
-  }, [todos]);
+    loadTodos();
+  }, [loadTodos]);
 
-  const addTodo = (text: string, priority: PriorityType = 'medium') => {
-    const newTodo: Todo = {
-      id: Date.now(),
-      text,
-      completed: false,
-      createdAt: new Date().toISOString(),
-      priority,
-      order: Date.now(),
-    };
-    setTodos(prev => [newTodo, ...prev]);
+  const addTodo = async (text: string, priority: PriorityType = 'medium') => {
+    try {
+      setError(null);
+      const dbTodo = await todosApi.create(text.trim(), priority);
+      const newTodo = mapDBTodoToTodo(dbTodo as Record<string, unknown>);
+      setTodos(prev => [newTodo, ...prev]);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : '创建失败');
+    }
   };
 
   const reorderTodos = (fromIndex: number, toIndex: number) => {
@@ -40,54 +42,116 @@ export function useTodos() {
       const newTodos = [...prev];
       const [removed] = newTodos.splice(fromIndex, 1);
       newTodos.splice(toIndex, 0, removed);
-      // 更新 order 值
       return newTodos.map((todo, index) => ({ ...todo, order: index }));
     });
   };
 
-  const toggleTodo = (id: number) => {
-    setTodos(prev =>
-      prev.map(todo =>
-        todo.id === id ? { ...todo, completed: !todo.completed } : todo
-      )
-    );
+  const toggleTodo = async (id: number) => {
+    const todo = todos.find(t => t.id === id);
+    if (!todo) return;
+    try {
+      setError(null);
+      const updated = await todosApi.update(id, { completed: !todo.completed });
+      setTodos(prev =>
+        prev.map(t =>
+          t.id === id ? { ...t, completed: (updated as Record<string, unknown>).completed as boolean } : t
+        )
+      );
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : '更新失败');
+    }
   };
 
-  const deleteTodo = (id: number) => {
-    setTodos(prev => prev.filter(todo => todo.id !== id));
+  const deleteTodo = async (id: number) => {
+    try {
+      setError(null);
+      await todosApi.delete(id);
+      setTodos(prev => prev.filter(t => t.id !== id));
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : '删除失败');
+    }
   };
 
-  const updateTodo = (id: number, updates: Partial<Todo>) => {
-    setTodos(prev =>
-      prev.map(todo =>
-        todo.id === id ? { ...todo, ...updates } : todo
-      )
-    );
+  const updateTodo = async (id: number, updates: Partial<Todo>) => {
+    try {
+      setError(null);
+      const apiUpdates: Record<string, unknown> = {};
+      if (updates.text !== undefined) apiUpdates.text = updates.text;
+      if (updates.priority !== undefined) apiUpdates.priority = updates.priority;
+      if (updates.completed !== undefined) apiUpdates.completed = updates.completed;
+
+      const updated = await todosApi.update(id, apiUpdates);
+      setTodos(prev =>
+        prev.map(t =>
+          t.id === id ? { ...t, ...updates, createdAt: (updated as Record<string, unknown>).created_at as string || t.createdAt } : t
+        )
+      );
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : '更新失败');
+    }
   };
 
-  const clearCompleted = () => {
-    setTodos(prev => prev.filter(todo => !todo.completed));
+  const clearCompleted = async () => {
+    const completedTodos = todos.filter(t => t.completed);
+    if (completedTodos.length === 0) return;
+    try {
+      setError(null);
+      await Promise.all(
+        completedTodos.map(t => todosApi.delete(t.id))
+      );
+      setTodos(prev => prev.filter(t => !t.completed));
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : '清除失败');
+    }
   };
 
-  const moveTodoToToday = (id: number) => {
-    setTodos(prev =>
-      prev.map(todo =>
-        todo.id === id
-          ? { ...todo, createdAt: new Date().toISOString() }
-          : todo
-      )
-    );
+  const moveTodoToToday = async (id: number) => {
+    try {
+      setError(null);
+      const updated = await todosApi.update(id, { completed: false });
+      setTodos(prev =>
+        prev.map(t =>
+          t.id === id
+            ? { ...t, completed: false, createdAt: (updated as Record<string, unknown>).created_at as string || new Date().toISOString() }
+            : t
+        )
+      );
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : '操作失败');
+    }
   };
 
-  const moveAllActiveToToday = () => {
-    setTodos(prev =>
-      prev.map(todo =>
-        !todo.completed
-          ? { ...todo, createdAt: new Date().toISOString() }
-          : todo
-      )
-    );
+  const moveAllActiveToToday = async () => {
+    const activeTodos = todos.filter(t => !t.completed);
+    if (activeTodos.length === 0) return;
+    try {
+      setError(null);
+      await Promise.all(
+        activeTodos.map(t => todosApi.update(t.id, { completed: false }))
+      );
+      setTodos(prev =>
+        prev.map(t =>
+          !t.completed
+            ? { ...t, createdAt: new Date().toISOString() }
+            : t
+        )
+      );
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : '操作失败');
+    }
   };
 
-  return { todos, addTodo, reorderTodos, toggleTodo, updateTodo, deleteTodo, clearCompleted, moveTodoToToday, moveAllActiveToToday };
+  return {
+    todos,
+    loading,
+    error,
+    addTodo,
+    reorderTodos,
+    toggleTodo,
+    updateTodo,
+    deleteTodo,
+    clearCompleted,
+    moveTodoToToday,
+    moveAllActiveToToday,
+  };
 }

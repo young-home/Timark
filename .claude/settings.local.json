@@ -21,7 +21,13 @@
       "Bash(Start-Process *)",
       "Bash(node server/index.js)",
       "Bash(curl *)",
-      "Bash(dir /mnt/d/WSL/Ubuntu/)"
+      "Bash(dir /mnt/d/WSL/Ubuntu/)",
+      "Bash(npx tsc *)",
+      "Bash(npx vite *)",
+      "Bash(findstr :3001)",
+      "Bash(taskkill *)",
+      "Bash(findstr LISTENING)",
+      "PowerShell(Stop-Process *)"
     ]
   }
 }

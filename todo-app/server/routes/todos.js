@@ -56,18 +56,19 @@ router.get('/', async (req, res) => {
 // 创建待办
 router.post('/', async (req, res) => {
   try {
-    const { text, priority } = req.body;
+    const { text, priority, completed, createdAt } = req.body;
     const userId = req.userId;
 
     if (!text || !text.trim()) {
       return res.status(400).json({ error: '任务内容不能为空' });
     }
 
+    // 如果有传入 createdAt，使用该时间；否则使用当前时间
     const result = await pool.query(
-      `INSERT INTO todos (user_id, text, priority)
-       VALUES ($1, $2, $3)
+      `INSERT INTO todos (user_id, text, completed, priority, created_at)
+       VALUES ($1, $2, $3, $4, $5)
        RETURNING *`,
-      [userId, text.trim(), priority || 'medium']
+      [userId, text.trim(), completed || false, priority || 'medium', createdAt || new Date().toISOString()]
     );
 
     res.status(201).json({
