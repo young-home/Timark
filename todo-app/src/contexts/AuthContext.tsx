@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, useCallback } from 'react';
+import { createContext, useContext, useEffect, useState, useCallback, ReactNode } from 'react';
 import { authApi } from '../api';
 
 interface User {
@@ -23,7 +23,7 @@ export function useAuth(): AuthContextValue {
   return ctx;
 }
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
+export function AuthProvider({ children, onLogoutCallback }: { children: ReactNode; onLogoutCallback?: () => void }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -35,7 +35,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser({
           id: payload.userId,
           email: payload.email,
-          displayName: payload.displayName || payload.email,
+          displayName: payload.displayName || payload.email.split('@')[0],
         });
       } catch {
         localStorage.removeItem('auth_token');
@@ -68,7 +68,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = useCallback(() => {
     authApi.logout();
     setUser(null);
-  }, []);
+    if (onLogoutCallback) {
+      onLogoutCallback();
+    }
+  }, [onLogoutCallback]);
 
   return (
     <AuthContext.Provider value={{ user, loading, login, register, logout }}>

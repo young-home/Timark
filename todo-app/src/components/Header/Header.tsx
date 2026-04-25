@@ -16,7 +16,38 @@ export function Header({ total, active, completed, onSearchExpand, onSearchChang
   const { language } = useLanguage();
   const [isSearchExpanded, setIsSearchExpanded] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [showLogout, setShowLogout] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // 获取用户名首字母
+  const getInitial = (name: string) => {
+    if (!name) return '?';
+    // 如果是中文，返回第一个字；如果是英文，返回首字母
+    const trimmed = name.trim();
+    if (/^[一-龥]/.test(trimmed)) {
+      return trimmed.charAt(0);
+    }
+    return trimmed.charAt(0).toUpperCase();
+  };
+
+  const handleUserClick = () => {
+    setShowLogout(prev => !prev);
+  };
+
+  // 点击外部关闭退出按钮
+  useEffect(() => {
+    if (!showLogout) return;
+
+    const handleClickOutside = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (!target.closest('.header-actions')) {
+        setShowLogout(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showLogout]);
 
   const t = {
     zh: {
@@ -102,19 +133,31 @@ export function Header({ total, active, completed, onSearchExpand, onSearchChang
         <p>{t[language].subtitle}</p>
       </div>
       {!isSearchExpanded && (
-        <div className="header-actions">
-          {userDisplayName && (
-            <span className="user-display-name">{userDisplayName}</span>
-          )}
+        <>
+          <div className="header-user-wrapper">
+            {onLogout && (
+              <>
+                <button
+                  className={`user-avatar-btn ${showLogout ? 'show-logout' : ''}`}
+                  onClick={handleUserClick}
+                  title={userDisplayName || ''}
+                >
+                  <span className="user-avatar-initial">
+                    {getInitial(userDisplayName || '')}
+                  </span>
+                </button>
+                <div className={`logout-wrapper ${showLogout ? 'visible' : ''}`}>
+                  <button className="logout-btn" onClick={onLogout} title={t[language].logout}>
+                    {language === 'zh' ? '退出' : 'Logout'}
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
           <button className="search-toggle-btn" onClick={handleToggleSearch}>
             <span className="search-icon">🔍</span>
           </button>
-          {onLogout && (
-            <button className="logout-btn" onClick={onLogout} title={t[language].logout}>
-              {language === 'zh' ? '退出' : 'Logout'}
-            </button>
-          )}
-        </div>
+        </>
       )}
       {isSearchExpanded && (
         <div className="header-search-wrapper">
